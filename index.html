@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Impound Tracker</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: #f5f7fa;
+      color: #333;
+      text-align: center;
+      padding: 40px 20px;
+    }
+    .card {
+      background: white;
+      max-width: 400px;
+      margin: 20px auto;
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+    h1 { color: #d32f2f; margin-bottom: 10px; }
+    .label { font-weight: bold; color: #555; }
+    .value { color: #1976d2; font-size: 1.1em; }
+    .status-pending { color: #f57c00; }
+    .status-released { color: #388e3c; }
+    .footer { margin-top: 40px; font-size: 0.8em; color: #999; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>Impound Record</h1>
+    <p><span class="label">ID:</span> <span class="value" id="id">Loading...</span></p>
+    <p><span class="label">Plate:</span> <span class="value" id="plate">—</span></p>
+    <p><span class="label">Make:</span> <span class="value" id="make">—</span></p>
+    <p><span class="label">Location:</span> <span class="value" id="location">—</span></p>
+    <p><span class="label">Date:</span> <span class="value" id="date">—</span></p>
+    <p><span class="label">Reason:</span> <span class="value" id="reason">—</span></p>
+    <p><span class="label">Status:</span> <span class="value status-pending" id="status">Pending</span></p>
+    <p><span class="label">Fee:</span> <span class="value" id="fee">₱150.00</span></p>
+  </div>
+  <div class="footer">Impound & Retrieval System © 2025</div>
+
+  <script>
+    // Read ID from URL: https://yourname.github.io/impound-tracker/?id=ABC123
+    const urlParams = new URLSearchParams(window.location.search);
+    const id = urlParams.get('id') || 'UNKNOWN';
+
+    document.getElementById('id').textContent = id;
+
+    // Simulate data (replace with real API later)
+    const mockData = {
+      "ABC123": { plate: "ABC-123", make: "Toyota Camry", location: "Barangay 132", date: "2025-04-05 14:30", reason: "Illegal Parking", status: "Pending" },
+      "XYZ789": { plate: "XYZ-789", make: "Honda Civic", location: "Barangay 145", date: "2025-04-04 09:15", reason: "Expired Registration", status: "Released" },
+      "LMN456": { plate: "LMN-456", make: "Ford F-150", location: "Barangay 160", date: "2025-04-03 11:00", reason: "Abandoned Vehicle", status: "Pending" }
+    };
+
+    const data = mockData[id] || { plate: "—", make: "—", location: "—", date: "—", reason: "—", status: "Not Found" };
+    
+    document.getElementById('plate').textContent = data.plate;
+    document.getElementById('make').textContent = data.make;
+    document.getElementById('location').textContent = data.location;
+    document.getElementById('date').textContent = data.date;
+    document.getElementById('reason').textContent = data.reason;
+    document.getElementById('status').textContent = data.status;
+    document.getElementById('fee').textContent = data.status === "Released" ? "₱0.00" : "₱150.00";
+
+    // Color status
+    const statusEl = document.getElementById('status');
+    if (data.status === "Released") statusEl.className = "value status-released";
+    else if (data.status === "Pending") statusEl.className = "value status-pending";
+  </script>
+</body>
+</html>
