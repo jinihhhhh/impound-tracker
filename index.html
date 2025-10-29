@@ -5,172 +5,71 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Impound Receipt</title>
   <style>
-    body {
-      font-family: 'Helvetica', 'Arial', sans-serif;
-      background: #f5f7fa;
-      color: #000;
-      text-align: center;
-      padding: 20px;
-      margin: 0;
-      font-size: 14px;
-    }
-    .receipt {
-      background: white;
-      max-width: 300px;
-      margin: 20px auto;
-      padding: 15px;
-      border: 1px solid #ccc;
-      border-radius: 8px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-      font-size: 12px;
-    }
-    h1 {
-      font-size: 16px;
-      font-weight: bold;
-      margin: 0 0 10px 0;
-      color: #000;
-    }
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-bottom: 10px;
-    }
-    td {
-      padding: 2px 0;
-      vertical-align: top;
-    }
-    .label {
-      font-weight: bold;
-      text-align: left;
-      width: 40%;
-    }
-    .value {
-      text-align: right;
-      width: 60%;
-    }
-    .field {
-      margin: 6px 0;
-      text-align: left;
-    }
-    .field strong {
-      display: inline-block;
-      width: 80px;
-    }
-    .qr-container {
-      margin: 15px 0;
-      text-align: center;
-    }
-    .qr-container img {
-      width: 120px;
-      height: 120px;
-    }
-    .scan-hint {
-      font-style: italic;
-      font-size: 10px;
-      color: #555;
-      margin: 5px 0 15px;
-    }
-    .footer {
-      font-size: 9px;
-      color: #777;
-      margin-top: 20px;
-    }
-    @media (max-width: 400px) {
-      .receipt { padding: 10px; font-size: 11px; }
-      h1 { font-size: 15px; }
-    }
+    body { font-family: Helvetica, Arial; background: #f5f7fa; padding: 20px; text-align: center; }
+    .receipt { background: white; max-width: 300px; margin: 20px auto; padding: 15px; border: 1px solid #ccc; border-radius: 8px; font-size: 12px; }
+    h1 { font-size: 16px; font-weight: bold; margin: 0 0 10px; }
+    table { width: 100%; margin-bottom: 10px; }
+    td { padding: 2px 0; }
+    .label { font-weight: bold; text-align: left; width: 40%; }
+    .value { text-align: right; }
+    .field { margin: 6px 0; text-align: left; }
+    .field strong { display: inline-block; width: 80px; }
+    .qr-container { margin: 15px 0; }
+    .qr-container img { width: 120px; height: 120px; }
+    .scan-hint { font-style: italic; font-size: 10px; color: #555; }
+    .footer { font-size: 9px; color: #777; margin-top: 20px; }
+    .loading { color: #999; font-style: italic; }
+    .error { color: #d32f2f; }
   </style>
 </head>
 <body>
   <div class="receipt">
     <h1>IMPOUND RECEIPT</h1>
-
-    <!-- Plate + ID Table -->
     <table>
-      <tr>
-        <td class="label">Plate:</td>
-        <td class="value" id="plate">—</td>
-      </tr>
-      <tr>
-        <td class="label">ID:</td>
-        <td class="value" id="id">—</td>
-      </tr>
+      <tr><td class="label">Plate:</td><td class="value" id="plate"><span class="loading">Loading...</span></td></tr>
+      <tr><td class="label">ID:</td><td class="value" id="id"><span class="loading">Loading...</span></td></tr>
     </table>
-
-    <!-- Other Fields -->
-    <div class="field"><strong>Make:</strong> <span id="make">—</span></div>
-    <div class="field"><strong>Location:</strong> <span id="location">—</span></div>
-    <div class="field"><strong>Date:</strong> <span id="date">—</span></div>
-    <div class="field"><strong>Reason:</strong> <span id="reason">—</span></div>
-    <div class="field" id="otherReasonRow" style="display:none;">
-      <strong>Details:</strong> <span id="otherReason">—</span>
-    </div>
-
-    <!-- QR Code -->
+    <div class="field"><strong>Make:</strong> <span id="make"><span class="loading">Loading...</span></span></div>
+    <div class="field"><strong>Location:</strong> <span id="location"><span class="loading">Loading...</span></span></div>
+    <div class="field"><strong>Date:</strong> <span id="date"><span class="loading">Loading...</span></span></div>
+    <div class="field"><strong>Reason:</strong> <span id="reason"><span class="loading">Loading...</span></span></div>
+    <div class="field" id="otherReasonRow" style="display:none;"><strong>Details:</strong> <span id="otherReason"></span></div>
     <div class="qr-container">
-      <img id="qrImage" src="" alt="QR Code" />
+      <img id="qrImage" src="" alt="QR" style="display:none;" />
       <div class="scan-hint">Scan to track online: <span id="scanId">—</span></div>
     </div>
-
-    <!-- Footer -->
     <div class="footer">Impound & Retrieval © 2025</div>
   </div>
 
   <script>
-    // Read ID from URL
     const urlParams = new URLSearchParams(window.location.search);
     const id = urlParams.get('id') || 'UNKNOWN';
-
-    // Mock data (same as your app's sample plates)
-    const records = {
-      "ABC123": {
-        plate: "ABC-123",
-        make: "Toyota Camry",
-        location: "Barangay 132",
-        date: "2025-10-29 14:30",
-        reason: "Illegal Parking",
-        otherReason: null
-      },
-      "XYZ789": {
-        plate: "XYZ-789",
-        make: "Honda Civic",
-        location: "Barangay 145",
-        date: "2025-10-28 09:15",
-        reason: "Expired Registration",
-        otherReason: "Registration expired 3 months ago"
-      },
-      "LMN456": {
-        plate: "LMN-456",
-        make: "Ford F-150",
-        location: "Barangay 160",
-        date: "2025-10-27 11:00",
-        reason: "Abandoned Vehicle",
-        otherReason: null
-      }
-    };
-
-    const rec = records[id] || {
-      plate: "—", make: "—", location: "—", date: "—", reason: "—", otherReason: null
-    };
-
-    // Fill fields
     document.getElementById('id').textContent = id;
-    document.getElementById('plate').textContent = rec.plate;
-    document.getElementById('make').textContent = rec.make;
-    document.getElementById('location').textContent = rec.location;
-    document.getElementById('date').textContent = rec.date;
-    document.getElementById('reason').textContent = rec.reason;
     document.getElementById('scanId').textContent = id;
 
-    if (rec.otherReason) {
-      document.getElementById('otherReason').textContent = rec.otherReason;
-      document.getElementById('otherReasonRow').style.display = 'block';
-    }
+    // CHANGE THIS TO YOUR PIPEDREAM URL
+    const apiUrl = `https://eogk4otkskipdk3.m.pipedream.net?id=${id}`;
 
-    // Generate QR code (same URL)
-    const qrUrl = `https://jinihhhhh.github.io/impound-tracker/?id=${id}`;
-    const qrApi = `https://api.qrserver.com/v1/create-qr-code/?size=120x120&data=${encodeURIComponent(qrUrl)}`;
-    document.getElementById('qrImage').src = qrApi;
+    fetch(apiUrl)
+      .then(r => r.ok ? r.json() : Promise.reject())
+      .then(data => {
+        document.getElementById('plate').textContent = data.plate;
+        document.getElementById('make').textContent = data.make;
+        document.getElementById('location').textContent = data.location;
+        document.getElementById('date').textContent = data.date;
+        document.getElementById('reason').textContent = data.reason;
+        if (data.otherReason) {
+          document.getElementById('otherReason').textContent = data.otherReason;
+          document.getElementById('otherReasonRow').style.display = 'block';
+        }
+        const qrImg = document.getElementById('qrImage');
+        qrImg.src = `https://api.qrserver.com/v1/create-qr-code/?size=120x120&data=${encodeURIComponent(location.href)}`;
+        qrImg.style.display = 'block';
+      })
+      .catch(() => {
+        document.querySelectorAll('.loading').forEach(el => el.textContent = '—');
+        document.getElementById('plate').innerHTML = '<span class="error">Record not found</span>';
+      });
   </script>
 </body>
 </html>
