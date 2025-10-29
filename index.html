@@ -5,21 +5,21 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Impound Receipt</title>
   <style>
-    body { font-family: Helvetica, Arial; background: #f5f7fa; padding: 20px; text-align: center; }
-    .receipt { background: white; max-width: 300px; margin: 20px auto; padding: 15px; border: 1px solid #ccc; border-radius: 8px; font-size: 12px; }
-    h1 { font-size: 16px; font-weight: bold; margin: 0 0 10px; }
-    table { width: 100%; margin-bottom: 10px; }
-    td { padding: 2px 0; }
-    .label { font-weight: bold; text-align: left; width: 40%; }
-    .value { text-align: right; }
-    .field { margin: 6px 0; text-align: left; }
-    .field strong { display: inline-block; width: 80px; }
-    .qr-container { margin: 15px 0; }
-    .qr-container img { width: 120px; height: 120px; }
-    .scan-hint { font-style: italic; font-size: 10px; color: #555; }
-    .footer { font-size: 9px; color: #777; margin-top: 20px; }
-    .loading { color: #999; font-style: italic; }
-    .error { color: #d32f2f; }
+    body {font-family:Helvetica,Arial;background:#f5f7fa;padding:20px;text-align:center;}
+    .receipt {background:white;max-width:300px;margin:20px auto;padding:15px;border:1px solid #ccc;border-radius:8px;font-size:12px;}
+    h1 {font-size:16px;font-weight:bold;margin:0 0 10px;}
+    table {width:100%;margin-bottom:10px;}
+    td {padding:2px 0;}
+    .label {font-weight:bold;text-align:left;width:40%;}
+    .value {text-align:right;}
+    .field {margin:6px 0;text-align:left;}
+    .field strong {display:inline-block;width:80px;}
+    .qr-container {margin:15px 0;}
+    .qr-container img {width:120px;height:120px;}
+    .scan-hint {font-style:italic;font-size:10px;color:#555;}
+    .footer {font-size:9px;color:#777;margin-top:20px;}
+    .loading {color:#999;font-style:italic;}
+    .error {color:#d32f2f;}
   </style>
 </head>
 <body>
@@ -47,11 +47,14 @@
     document.getElementById('id').textContent = id;
     document.getElementById('scanId').textContent = id;
 
-    // CHANGE THIS TO YOUR PIPEDREAM URL
-    const apiUrl = `https://eogk4otkskipdk3.m.pipedream.net?id=${id}`;
+    // Direct raw URL from same repo
+    const jsonUrl = `https://raw.githubusercontent.com/jinihhhhh/impound-tracker/main/data/${id}.json`;
 
-    fetch(apiUrl)
-      .then(r => r.ok ? r.json() : Promise.reject())
+    fetch(jsonUrl)
+      .then(r => {
+        if (!r.ok) throw new Error('Not found');
+        return r.json();
+      })
       .then(data => {
         document.getElementById('plate').textContent = data.plate;
         document.getElementById('make').textContent = data.make;
